@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Valentine's Day Surprise</title>
+    <!-- Include the p5.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #0a0a1e;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      // Global variables
+      let particles = [];
+      let explosionTriggered = false;
+      let messageDisplayed = false;
+      let secondMessageDisplayed = false;
+      let clickCount = 0;
+
+      function setup() {
+        createCanvas(windowWidth, windowHeight);
+        noStroke();
+        textAlign(CENTER, CENTER);
+      }
+
+      function draw() {
+        // Draw a dark background
+        background(10, 10, 30);
+
+        // Draw subtle heart-shaped "twinkling" in the background
+        for (let i = 0; i < 5; i++) {
+          push();
+          translate(random(width), random(height));
+          scale(random(0.1, 0.3));
+          fill(255, 20);
+          noStroke();
+          drawHeartShape();
+          pop();
+        }
+
+        // Update and display each heart particle (explosion hearts)
+        for (let i = particles.length - 1; i >= 0; i--) {
+          particles[i].update();
+          particles[i].display();
+          if (particles[i].isFinished()) {
+            particles.splice(i, 1);
+          }
+        }
+
+        // Once the first explosion's particles are done, show the first message
+        if (explosionTriggered && particles.length === 0) {
+          messageDisplayed = true;
+        }
+
+        if (messageDisplayed) {
+          displayMessage();
+        }
+
+        if (secondMessageDisplayed) {
+          displaySecondMessage();
+        }
+      }
+
+      // Handle mouse clicks:
+      // Every click creates an explosion of hearts.
+      // The first click triggers the first explosion.
+      // The second click triggers another explosion and displays the second message.
+      function mousePressed() {
+        clickCount++;
+        let numParticles = 50;
+        for (let i = 0; i < numParticles; i++) {
+          particles.push(new HeartParticle(createVector(mouseX, mouseY)));
+        }
+        if (clickCount === 1) {
+          explosionTriggered = true;
+        } else if (clickCount === 2) {
+          secondMessageDisplayed = true;
+        }
+      }
+
+      // Particle class for heart-shaped particles
+      class HeartParticle {
+        constructor(position) {
+          this.pos = position.copy();
+          // Set a random velocity direction and speed
+          let angle = random(TWO_PI);
+          let speed = random(1, 5);
+          this.vel = createVector(cos(angle), sin(angle)).mult(speed);
+          this.acc = createVector(0, 0.05); // Gravity-like effect
+          this.lifespan = 255;
+          this.size = random(0.5, 1.5);
+        }
+
+        update() {
+          this.vel.add(this.acc);
+          this.pos.add(this.vel);
+          this.lifespan -= 4; // Fade out over time
+        }
+
+        display() {
+          push();
+          translate(this.pos.x, this.pos.y);
+          scale(this.size);
+          // Red heart with fading alpha for a soft disappearance
+          fill(255, 0, 0, this.lifespan);
+          noStroke();
+          drawHeartShape();
+          pop();
+        }
+
+        isFinished() {
+          return this.lifespan < 0;
+        }
+      }
+
+      // Function to draw a heart shape centered at (0,0) using Bézier curves
+      function drawHeartShape() {
+        beginShape();
+        vertex(0, -10);
+        bezierVertex(-25, -40, -60, -20, 0, 40);
+        bezierVertex(60, -20, 25, -40, 0, -10);
+        endShape(CLOSE);
+      }
+
+      // Display the first personalized message in pink
+      function displayMessage() {
+        push();
+        fill(255, 105, 180); // Pink color
+        textSize(48);
+        text("Happy Valentine's Day, Mommyy!(>'-'<)", width / 2, height / 2 - 30);
+        pop();
+      }
+
+      // Display the second message in pink when the user clicks a second time
+      function displaySecondMessage() {
+        push();
+        fill(255, 105, 180); // Pink color
+        textSize(36);
+        text("Will You Be My Valentine Mommy??? Pweaseeee??(❤️ ω ❤️)", width / 2, height / 2 + 40);
+        pop();
+      }
+
+      // Ensure the canvas resizes with the browser window
+      function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
+      }
+    </script>
+  </body>
+</html>
